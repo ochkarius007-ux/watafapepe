@@ -4,10 +4,15 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
+import configparser
+
+# Load configuration from config.ini
+config = configparser.ConfigParser()
+config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///helpdesk.db'
+app.config['SECRET_KEY'] = config.get('FLASK', 'secret_key', fallback='your-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{config.get('DATABASE', 'db_path', fallback='instance/helpdesk.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -392,4 +397,7 @@ with app.app_context():
         print("Specialist user created: specialist / spec123")
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    host = config.get('FLASK', 'host', fallback='0.0.0.0')
+    port = config.getint('FLASK', 'port', fallback=5000)
+    debug = config.getboolean('FLASK', 'debug', fallback=True)
+    app.run(debug=debug, host=host, port=port)
