@@ -1,12 +1,13 @@
 import os
 import logging
-from dotenv import load_dotenv
+import configparser
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import requests
 
-# Load environment variables from .env file
-load_dotenv()
+# Load configuration from config.ini
+config = configparser.ConfigParser()
+config.read(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.ini'))
 
 # Configure logging
 logging.basicConfig(
@@ -15,8 +16,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configuration
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_TELEGRAM_BOT_TOKEN')
+# Configuration from config.ini
+TELEGRAM_BOT_TOKEN = config.get('TELEGRAM', 'bot_token', fallback='YOUR_TELEGRAM_BOT_TOKEN')
 HELPDESK_API_URL = os.getenv('HELPDESK_API_URL', 'http://localhost:5000')
 
 # Auto-reply messages

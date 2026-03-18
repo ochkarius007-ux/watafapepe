@@ -1,11 +1,12 @@
 import os
 import logging
-from dotenv import load_dotenv
+import configparser
 from flask import Flask, request, jsonify
 import requests
 
-# Load environment variables from .env file
-load_dotenv()
+# Load configuration from config.ini
+config = configparser.ConfigParser()
+config.read(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.ini'))
 
 # Configure logging
 logging.basicConfig(
@@ -16,8 +17,9 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Configuration
-MAX_BOT_TOKEN = os.getenv('MAX_BOT_TOKEN', 'YOUR_MAX_BOT_TOKEN')
+# Configuration from config.ini
+MAX_BOT_TOKEN = config.get('MAX', 'bot_token', fallback='YOUR_MAX_BOT_TOKEN')
+MAX_API_URL = config.get('MAX', 'api_url', fallback='https://api.max-platform.ru')
 HELPDESK_API_URL = os.getenv('HELPDESK_API_URL', 'http://localhost:5000')
 
 # Auto-reply messages
