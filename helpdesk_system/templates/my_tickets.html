@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Мои заявки{% endblock %}
+
+{% block content %}
+<h2>Мои заявки</h2>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Заголовок</th>
+                    <th>Статус</th>
+                    <th>Приоритет</th>
+                    <th>Создана</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.title }}</td>
+                    <td><span class="status-{{ ticket.status }}">{{ ticket.status }}</span></td>
+                    <td>{{ ticket.priority }}</td>
+                    <td>{{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-primary">Просмотр</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
