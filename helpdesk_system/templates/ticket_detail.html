@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Заявка #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Заявка #{{ ticket.id }}: {{ ticket.title }}</h4>
+        <span class="badge bg-{{ 'danger' if ticket.status == 'open' else 'warning' if ticket.status == 'in_progress' else 'primary' if ticket.status == 'resolved' else 'success' }}">
+            {{ ticket.status }}
+        </span>
+    </div>
+    <div class="card-body">
+        <p><strong>Описание:</strong> {{ ticket.description }}</p>
+        <p><strong>Приоритет:</strong> {{ ticket.priority }}</p>
+        <p><strong>Создана:</strong> {{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+        <p><strong>Пользователь:</strong> {{ ticket.user.username }} ({{ ticket.user.phone }})</p>
+        {% if ticket.assigned_to %}
+        <p><strong>Исполнитель:</strong> {{ ticket.specialist.username }}</p>
+        {% endif %}
+        <p><strong>Источник:</strong> {{ ticket.source }}</p>
+        
+        {% if current_user.role in ['specialist', 'admin'] %}
+        <hr>
+        <h5>Действия специалиста</h5>
+        <form method="POST" action="{{ url_for('assign_ticket', ticket_id=ticket.id) }}" class="d-inline">
+            <select name="specialist_id" class="form-select d-inline" style="width: auto;">
+                {% for spec in specialists %}
+                <option value="{{ spec.id }}">{{ spec.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Назначить</button>
+        </form>
+        
+        <form method="POST" action="{{ url_for('update_status', ticket_id=ticket.id) }}" class="d-inline">
+            <select name="status" class="form-select d-inline" style="width: auto;">
+                <option value="open">Открыта</option>
+                <option value="in_progress">В работе</option>
+                <option value="resolved">Решена</option>
+                <option value="closed">Закрыта</option>
+            </select>
+            <button type="submit" class="btn btn-warning btn-sm">Изменить статус</button>
+        </form>
+        
+        {% if ticket.status != 'closed' %}
+        <form method="POST" action="{{ url_for('close_ticket', ticket_id=ticket.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Закрыть заявку?')">Закрыть заявку</button>
+        </form>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Переписка</h5>
+    </div>
+    <div class="card-body">
+        {% for message in ticket.messages %}
+        <div class="{{ 'message-from-user' if message.is_from_user else 'message-from-specialist' }}">
+            <small class="text-muted">{{ message.created_at.strftime('%d.%m.%Y %H:%M') }} - {{ 'Пользователь' if message.is_from_user else 'Специалист' }}</small>
+            <p>{{ message.content }}</p>
+        </div>
+        {% endfor %}
+        
+        <hr>
+        <h6>Добавить сообщение</h6>
+        <form method="POST" action="{{ url_for('add_message', ticket_id=ticket.id) }}">
+            <div class="mb-3">
+                <textarea class="form-control" name="content" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+</div>
+
+<a href="{{ url_for('dashboard') if current_user.role in ['specialist', 'admin'] else url_for('my_tickets') }}" class="btn btn-secondary mt-3">Назад</a>
+{% endblock %}

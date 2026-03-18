@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Новая заявка{% endblock %}
+
+{% block content %}
+<h2>Создание новой заявки</h2>
+
+<div class="alert alert-warning">
+    <strong>Важно!</strong> Заявки с персональными данными не будут обрабатываться. 
+    Пожалуйста, укажите в общих чертах, что требуется сделать. 
+    Специалист сразу свяжется с вами по указанному телефону.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Заголовок</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание проблемы</label>
+                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="priority" class="form-label">Приоритет</label>
+                <select class="form-select" id="priority" name="priority">
+                    <option value="low">Низкий</option>
+                    <option value="medium" selected>Средний</option>
+                    <option value="high">Высокий</option>
+                    <option value="critical">Критический</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Создать заявку</button>
+            <a href="{{ url_for('my_tickets') }}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
