@@ -1,7 +1,11 @@
 import os
 import logging
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import requests
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
